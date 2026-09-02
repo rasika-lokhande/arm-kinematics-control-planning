@@ -1,7 +1,7 @@
 import numpy as np
 import mujoco.viewer
 
-from src.sim_interface import SimInterface
+from scripts.sim_interface import SimInterface
 
 EE_SITE = "attachment_site"  # replace with whatever inspect_model.py showed
 MODEL_PATH = "models/franka_emika_panda/panda_nohand.xml"
