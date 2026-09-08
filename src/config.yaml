@@ -1,1 +1,27 @@
-MODEL_PATH: "models/franka_emika_panda/panda_nohand.xml"
+MODEL_PATH: "models/franka_emika_panda/panda_nohand_grav.xml"
+
+# From model xml
+JOINT_LIMITS_LOW: [-2.8973, -1.7628, -2.8973, -3.0718, -2.8973, -0.0175, -2.8973]
+JOINT_LIMITS_HIGH: [ 2.8973,  1.7628,  2.8973, -0.0698,  2.8973,  3.7525,  2.8973] 
+
+# From https://github.com/frankarobotics/franka_ros/blob/develop/franka_description/robots/panda/joint_limits.yaml
+QVEL_MAX: [2.175,    2.175,    2.175,    2.175,    2.610,    2.610,    2.610]
+
+
+PID_TUNING_RESULTS_PATH: "results/pid_tuning/kp_tuning.csv"
+PID_TUNING_PLOT_DIR: "results/pid_tuning"
+
+FK_VALIDATION_CSV_PATH: "results/fk_validation/fk_validation.csv"
+FK_VALIDATION_PLOT_PATH: "results/fk_validation/fk_validation.png"
+
+IK_VALIDATION_CSV_PATH: "results/ik_validation/ik_validation.csv"
+IK_CONVERGENCE_PLOT_PATH: "results/ik_validation/ik_convergence.png"
+IK_FAILED_TRIALS_PLOT_PATH: "results/ik_validation/ik_failed_trials.png"
+IK_CONVERGENCE_SUMMARY_PLOT_PATH: "results/ik_validation/ik_convergence_summary.png"
+IK_ERROR_DISTRIBUTION_PLOT_PATH: "results/ik_validation/ik_error_distribution.png"
+
+CONTROLLER_VALIDATION_CSV_PATH: "results/controller_validation/validate_pid.csv"
+CONTROLLER_VALIDATION_PLOT_PATH: "results/controller_validation/controller_validation.png"
+CONTROLLER_CONVERGENCE_BY_BAND_PLOT_PATH: "results/controller_validation/convergence_by_band.png"
+CONTROLLER_SETTLING_HISTOGRAM_PLOT_PATH: "results/controller_validation/settling_histogram.png"
+CONTROLLER_SETTLING_TIME_PLOT_PATH: "results/controller_validation/settling_time.png"

@@ -1,7 +1,8 @@
-from src.sim_interface import SimInterface
+
 from scipy.spatial.transform import Rotation 
-from src.kinematics import homog, forward_kinematics, homog_to_R_p, quat_to_R
-from utils.config import config
+from src.kinematics import forward_kinematics
+from src.transforms import homog, homog_to_R_p, quat_to_R
+
 import numpy as np
 
 
@@ -21,6 +22,16 @@ def compute_jacobian(sim, jnt_axis:np.array, jnt_pos:np.array, p_ee:np.array):
     J = np.column_stack(J_list)
 
     return J
+
+
+def compute_error(target_pos, target_R, current_pos, current_R):
+
+    # Calculate error
+    error_pos = target_pos - current_pos
+    error_R = target_R @ current_R.T
+    error_rotvec = Rotation.from_matrix(error_R).as_rotvec()
+    #error = np.append(error_pos, error_rotvec)
+    return error_pos, error_rotvec
 
 
 
@@ -51,15 +62,14 @@ def run_ik(sim, target_ee_pos, target_ee_quat, theta_init=None,
         target_ee_R = quat_to_R(target_ee_quat)
 
         # Calculate error
-        error_pos = target_ee_pos - current_ee_pos
-        error_R = target_ee_R @ current_ee_R.T
-        error_rotvec = Rotation.from_matrix(error_R).as_rotvec()
-        error = np.append(error_pos, error_rotvec)
 
+        error_pos, error_rotvec = compute_error(target_ee_pos, target_ee_R, current_ee_pos, current_ee_R)
+        error = np.append(error_pos, error_rotvec)
         pos_err_history.append(np.linalg.norm(error_pos))
         rot_err_history.append(np.linalg.norm(error_rotvec))
 
 
+        # Check for convergence
         if np.linalg.norm(error_pos) < pos_tol and np.linalg.norm(error_rotvec) < rot_tol:
             converged = True
             iter_conv = iter
@@ -73,8 +83,13 @@ def run_ik(sim, target_ee_pos, target_ee_quat, theta_init=None,
 
 
         # Step 4: Turn error into joint nudge
+        # Using Damped least-squares (Levenberg-Marquardt) pseudoinverse
+        # Minimize a cost function -> C(delta_theta) =   |J. delta_theta - error|^2 + lam^2 |delta_theta|^2
+        # Solution to d(C)/d(delta_theta) = 0 ---> Find delta_theta. 
         I = np.identity(J.shape[0])
-        delta_theta = J.T @ np.linalg.inv(J @ J.T + lam**2 * I) @ error
+        delta_theta = J.T @ np.linalg.inv(J @ J.T + lam**2 * I) @ error  # Solution to the optimization
+
+        # Update theta
         theta = theta + alpha * delta_theta
         # TO DO: add joint limit clamps
 

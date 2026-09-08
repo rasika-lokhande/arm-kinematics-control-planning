@@ -13,6 +13,8 @@ class SimInterface:
         self._load_joint_info()
         self._load_body_info()
         self._load_site_info()
+        self.theta_home = [0, 0, 0, -1.57079, 0, 1.57079, -0.7853]
+        self.set_joint_angles(self.theta_home) # set to ready pose
 
     def _load_joint_info(self):
         self.joint_names = [self.model.joint(i).name for i in range(self.model.njnt)]
@@ -39,6 +41,10 @@ class SimInterface:
             while viewer.is_running():
                 self.step()
                 viewer.sync()
+
+    def reset(self):
+        mujoco.mj_resetData(self.model, self.data)
+        mujoco.mj_forward(self.model, self.data)
 
     # ============ Accessor functions ============
 
@@ -91,6 +97,15 @@ class SimInterface:
         self.data.qpos[:] = angles
         mujoco.mj_forward(self.model, self.data)
 
+    def get_ee_pose(self, ee_site_id):
+        ## In built FK
+        pos = self.data.site_xpos[ee_site_id].copy()
+        rot = self.data.site_xmat[ee_site_id].copy().reshape(3, 3)
+        return pos, rot
+    
+
+
+
     # ============ Debug ============
 
     def print_info(self):
@@ -120,6 +135,7 @@ class SimInterface:
         print("\n=== Current Joint Angles ===")
         print({str(self.get_current_joint_angles_list())})
 
+        
 
 if __name__ == "__main__":
     sim = SimInterface(model_path=config["MODEL_PATH"])

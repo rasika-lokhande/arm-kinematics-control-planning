@@ -1,7 +1,8 @@
 
 import mujoco
+from utils.config import config
 
-model = mujoco.MjModel.from_xml_path("models/franka_emika_panda/panda_nohand.xml")
+model = mujoco.MjModel.from_xml_path(config['MODEL_PATH'])
 
 print("=== Joints ===")
 joint_names = [f"joint{i}" for i in range(1, 8)]
@@ -23,7 +24,6 @@ for i in range(model.njnt):
     print(f"  {i}: {joint_name}")
 
     
-
 print("\n=== Sites ===")
 for i in range(model.nsite):
     print(f"  {i}: {model.site(i).name}")

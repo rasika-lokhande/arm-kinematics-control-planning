@@ -52,7 +52,7 @@ def run_trials(n):
             "ori_error_deg": ori_error_deg,
         })
 
-    with open("results/fk_validation.csv", "w", newline="") as f:
+    with open(config['FK_VALIDATION_CSV_PATH'], "w", newline="") as f:
         writer = csv.DictWriter(f, fieldnames=["trial", "theta", "pos_error_m", "ori_error_deg"])
         writer.writeheader()
         writer.writerows(results)
@@ -60,7 +60,7 @@ def run_trials(n):
     
     max_pos = max(r["pos_error_m"] for r in results)
     max_ori = max(r["ori_error_deg"] for r in results)
-    print(f"Saved {len(results)} trials to results/fk_validation.csv")
+    print(f"Saved {len(results)} trials to {config['FK_VALIDATION_CSV_PATH']}")
     print(f"Max position error: {max_pos:.3e} m | Max orientation error: {max_ori:.3e} deg")
 
 
@@ -68,7 +68,7 @@ def run_trials(n):
 
 
 def plot_fk_validation(results, pos_threshold=0.001, ori_threshold=0.5,
-                        save_path="results/fk_validation.png"):
+                        save_path=config['FK_VALIDATION_PLOT_PATH']):
     """
     Plot FK validation errors (position + orientation) across test trials.
 

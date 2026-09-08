@@ -2,14 +2,15 @@ import csv
 import numpy as np
 from scipy.spatial.transform import Rotation
 import matplotlib.pyplot as plt
+from src.transforms import homog_to_R_p
 from src.ik_solver import run_ik_multistart
-from src.kinematics import forward_kinematics, homog_to_R_p
+from src.kinematics import forward_kinematics
 from src.sim_interface import SimInterface
 from utils.config import config
 
 
 def plot_convergence(pos_err_history, rot_err_history, pos_tol, rot_tol, title="IK Convergence",
-                      save_path="results/ik_convergence.png"):
+                      save_path=config['IK_CONVERGENCE_PLOT_PATH']):
     fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(7, 6), sharex=True)
 
     ax1.plot(pos_err_history, marker='o', markersize=3)
@@ -33,7 +34,7 @@ def plot_convergence(pos_err_history, rot_err_history, pos_tol, rot_tol, title="
 
 
 def plot_failed_trials(failed_trials, pos_tol, rot_tol, n_plots=6, ncols=3,
-                        save_path="results/ik_failed_trials.png"):
+                        save_path=config['IK_FAILED_TRIALS_PLOT_PATH']):
     """
     failed_trials: list of dicts, one per failed trial, each with keys:
                    'trial_idx', 'pos_hist', 'rot_hist'
@@ -79,7 +80,7 @@ def plot_failed_trials(failed_trials, pos_tol, rot_tol, n_plots=6, ncols=3,
     print(f"Saved plot to {save_path}")
 
 
-def plot_convergence_summary(results, max_iter, save_path="results/ik_convergence_summary.png"):
+def plot_convergence_summary(results, max_iter, save_path=config['IK_CONVERGENCE_SUMMARY_PLOT_PATH']):
     """
     results: list of dicts, one per trial, each with keys:
              'converged' (bool), 'iter_conv' (int)
@@ -102,7 +103,7 @@ def plot_convergence_summary(results, max_iter, save_path="results/ik_convergenc
     print(f"Saved plot to {save_path}")
 
 
-def plot_error_distribution(results, pos_tol, rot_tol, save_path="results/ik_error_distribution.png"):
+def plot_error_distribution(results, pos_tol, rot_tol, save_path=config['IK_ERROR_DISTRIBUTION_PLOT_PATH']):
     """
     Scatter of final position vs. orientation error per trial, split by outcome.
 
@@ -139,7 +140,7 @@ def plot_error_distribution(results, pos_tol, rot_tol, save_path="results/ik_err
     print(f"Saved plot to {save_path}")
 
 
-def save_trial_results(results, save_path="results/ik_validation.csv"):
+def save_trial_results(results, save_path=config['IK_VALIDATION_CSV_PATH']):
     """
     results: list of dicts, one per trial, each with keys:
              'converged' (bool), 'iter_conv' (int), 'pos_error_m' (float), 'rot_error_rad' (float)

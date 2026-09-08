@@ -1,10 +1,11 @@
 import numpy as np
 import mujoco.viewer
 
-from scripts.sim_interface import SimInterface
+from src.sim_interface import SimInterface
+from utils.config import config
 
 EE_SITE = "attachment_site"  # replace with whatever inspect_model.py showed
-MODEL_PATH = "models/franka_emika_panda/panda_nohand.xml"
+MODEL_PATH = config['MODEL_PATH']
 READY_POSE = np.array([0.0, -0.785, 0.0, -2.356, 0.0, 1.571, 0.785])  # Franka's typical "ready" pose
 
 
@@ -16,7 +17,7 @@ def verify_stepping(sim, viewer, n_steps=10):
 
 
 def verify_joint_angles(sim):
-    angles = sim.get_joint_angles()
+    angles = sim.get_current_joint_angles_list()
     print(f"✓ Joint angles read ({len(angles)} DOF): {angles}")
     return angles
 
@@ -24,7 +25,7 @@ def verify_joint_angles(sim):
 def verify_pose_at(sim, viewer, angles, label):
     sim.set_joint_angles(angles)
     viewer.sync()
-    pos, rot = sim.get_ee_pose()
+    pos, rot = sim.get_ee_pose(sim.get_site_id(EE_SITE))
     print(f"✓ End-effector pose at '{label}':")
     print(f"  Position: {pos}")
     print(f"  Rotation matrix:\n{rot}")
@@ -32,7 +33,7 @@ def verify_pose_at(sim, viewer, angles, label):
 
 
 def main():
-    sim = SimInterface(MODEL_PATH, EE_SITE)
+    sim = SimInterface(MODEL_PATH)
     with mujoco.viewer.launch_passive(sim.model, sim.data) as viewer:
         verify_stepping(sim, viewer)
         verify_joint_angles(sim)
