@@ -6,6 +6,16 @@ build-backend = "setuptools.build_meta"
 name = "arm-kinematics-control-planning"
 version = "0.1.0"
 requires-python = ">=3.10"
+dependencies = [
+    "mujoco>=3.4.0",
+    "mujoco-python-viewer>=0.1.4",
+    "pyyaml>=6.0",
+    "numpy>=1.26.4",
+    "scipy>=1.11.4",
+    "matplotlib>=3.10.8",
+    "pandas>=3.0.5",
+]
 
-[tool.setuptools]
-packages = ["src", "utils", "scripts"]
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["src*", "utils*", "scripts*"]
