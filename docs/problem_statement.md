@@ -1,6 +1,6 @@
 # Problem Statement
 
-This project answers three questions.
+This project answers four questions.
 
 **1. Where is the end-effector right now?**
 
@@ -22,4 +22,12 @@ Knowing the target joint angles (or target pose) isn't enough. The arm has to be
 
 > Given: the arm's current state and a target pose (or sequence of target poses).
 > Find: a sequence of commands over time that drives the end-effector from wherever it currently is to the target, accurately, and without instability (overshoot, oscillation, excessive settling time).
+
+
+4. **What path should the arm move through if there are obstacles in the environment?**
+
+If the direct path to the target is blocked by obstacles, a path around the obstacles must be found thats also efficient and possible. This is the motion-planning problem: finding a sequence of intermediate way points will get the arm to the ultimate target position without colliding with the obstacles
+
+> Given: The arm's current state, a target pose, set of obstacles in the workspace.
+> Find: Sequence of intermediate joint configurations (a path) from the arm's current configuration to a target configuration, such that every configuration along the path is collision-free, and the path is found in reasonable time without being needlessly long or convoluted.
 

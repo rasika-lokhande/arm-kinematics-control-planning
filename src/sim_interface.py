@@ -39,7 +39,6 @@ class SimInterface:
     def run_viewer(self):
         with mujoco.viewer.launch_passive(self.model, self.data) as viewer:
             while viewer.is_running():
-                self.step()
                 viewer.sync()
 
     def reset(self):

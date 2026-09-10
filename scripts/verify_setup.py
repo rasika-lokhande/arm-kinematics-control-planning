@@ -5,7 +5,9 @@ from src.sim_interface import SimInterface
 from utils.config import config
 
 EE_SITE = "attachment_site"  # replace with whatever inspect_model.py showed
-MODEL_PATH = config['MODEL_PATH']
+#MODEL_PATH = config['MODEL_PATH']
+# MODEL_PATH = config['SCENE_NARROW_PATH']
+MODEL_PATH = config['SCENE_EASY_PATH']
 READY_POSE = np.array([0.0, -0.785, 0.0, -2.356, 0.0, 1.571, 0.785])  # Franka's typical "ready" pose
 
 

@@ -3,11 +3,12 @@
 **STATUS**
 - Kinematics (FK/IK) - Complete
 - Control - Complete
-- Motion Planning - Not started
+- Motion Planning - In progress
 
 Implemented and validated on a Franka Emika Panda (7-DOF) in MuJoCo.
 
-**Problem Statement**: [docs/problem_statement.md](docs/problem_statement.md)
+**Problem Statement**: [docs/problem_statement.md](docs/problem_statement.md) 
+
 **Summary report**: [docs/report.md](docs/report.md)
 
 - Forward kinematics via an explicit transform chain, checked against MuJoCo's own site pose 
