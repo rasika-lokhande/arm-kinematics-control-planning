@@ -38,7 +38,7 @@ def compute_error(target_pos, target_R, current_pos, current_R):
 def run_ik(sim, target_ee_pos, target_ee_quat, theta_init=None,
            lam=0.1, pos_tol=0.001, rot_tol=0.01, max_iter=500, alpha=1.0):
 
-    theta = theta_init if theta_init is not None else np.zeros(sim.model.njnt)
+    theta = theta_init if theta_init is not None else np.array(sim.theta_home)
     converged = False
     iter_conv = max_iter
 
@@ -91,7 +91,7 @@ def run_ik(sim, target_ee_pos, target_ee_quat, theta_init=None,
 
         # Update theta
         theta = theta + alpha * delta_theta
-        # TO DO: add joint limit clamps
+        theta = np.clip(theta, sim.model.jnt_range[:, 0], sim.model.jnt_range[:, 1])
 
     return theta, error_pos, error_rotvec, converged, iter_conv, pos_err_history, rot_err_history
 
@@ -100,7 +100,7 @@ def run_ik_multistart(sim, target_ee_pos, target_ee_quat, n_restarts=3,
                        lam=0.1, pos_tol=0.005, rot_tol=0.035, max_iter=300, alpha=1.0):
 
 
-    theta_inits = [np.zeros(sim.model.njnt)]
+    theta_inits = [np.array(sim.theta_home)]
     for restart in range(n_restarts - 1):
         theta_inits.append(np.random.uniform(sim.model.jnt_range[:, 0], sim.model.jnt_range[:, 1]))
 
