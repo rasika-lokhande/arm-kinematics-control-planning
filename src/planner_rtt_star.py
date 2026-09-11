@@ -1,8 +1,8 @@
-from sim_interface import SimInterface
+from src.sim_interface import SimInterface
 from utils.config import config
 import numpy as np
 from dataclasses import dataclass
-from q_validity_check import check_edge_validity, is_valid
+from src.q_validity_check import check_edge_validity, is_valid
 from scripts.pid_tuning import generate_target
 
 
@@ -116,13 +116,13 @@ def extract_path(end_node:Node):
 
     path = []
     node =  end_node
-
+    path_cost = end_node.g
+ 
     while node is not None:
         path.append(node)
         node = node.parent
-
     path.reverse()
-    return path
+    return path, path_cost
 
 
 def rtt_star(sim:SimInterface, q_start:np.ndarray, q_goal:np.ndarray,
@@ -185,6 +185,7 @@ def rtt_star(sim:SimInterface, q_start:np.ndarray, q_goal:np.ndarray,
                 result["end_node"] = node_new
                 result["iter_conv"] = i
                 result["tree"] = tree
+                result['tree_size'] = len(tree)
                 return result
 
     # Did not find path with the max_iter
@@ -192,6 +193,7 @@ def rtt_star(sim:SimInterface, q_start:np.ndarray, q_goal:np.ndarray,
     result["end_node"] = None
     result["iter_conv"] = None
     result["tree"] = tree
+    result['tree_size'] = len(tree)
     return result
 
 

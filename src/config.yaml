@@ -27,3 +27,7 @@ CONTROLLER_VALIDATION_PLOT_PATH: "results/controller_validation/controller_valid
 CONTROLLER_CONVERGENCE_BY_BAND_PLOT_PATH: "results/controller_validation/convergence_by_band.png"
 CONTROLLER_SETTLING_HISTOGRAM_PLOT_PATH: "results/controller_validation/settling_histogram.png"
 CONTROLLER_SETTLING_TIME_PLOT_PATH: "results/controller_validation/settling_time.png"
+
+
+PLANNER_VALIDATION_CSV_PATH: "results/planner_validation/validate_planner.csv"
+PLANNER_VALIDATION_PLOT_PATH: "results/planner_validation/planner_validation_summary.png"

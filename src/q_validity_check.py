@@ -1,4 +1,4 @@
-from sim_interface import SimInterface
+from src.sim_interface import SimInterface
 from utils.config import config
 import numpy as np
 
