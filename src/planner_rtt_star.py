@@ -126,7 +126,7 @@ def extract_path(end_node:Node):
 
 
 def rtt_star(sim:SimInterface, q_start:np.ndarray, q_goal:np.ndarray,
-             max_iter:int, step_size:float, radius:float, goal_tol:float):
+             max_iter:int=1000, step_size:float=0.15, radius:float=0.225, goal_tol:float=0.1):
 
 
     result = {}
