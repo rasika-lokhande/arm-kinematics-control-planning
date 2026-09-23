@@ -37,10 +37,10 @@ src/
   ik_solver.py              # Inverse Kinematics: Jacobian + damped least squares solver
   controller.py             # Task-space PID controller driving the arm to a target pose
   q_validity_check.py       # Joint-limit and collision checks
-  rrt_star.py                # RRT* planner over joint-space configurations
-  path_smoothing.py          # Shortcut-based path smoothing + a path-smoothness metric
-  motion_planner.py          # plan_path(): RRT* + smoothing, retried until it succeeds
-  orchestrator.py             # move_to_target(): full IK -> plan -> execute pipeline
+  rrt_star.py               # RRT* planner over joint-space configurations
+  path_smoothing.py         # Shortcut-based path smoothing + a path-smoothness metric
+  motion_planner.py         # plan_path(): RRT* + smoothing, retried until it succeeds
+  orchestrator.py           # move_to_target(): full IK -> plan -> execute pipeline
   transforms.py             # Rotation/homogeneous-transform helper functions
   sim_interface.py          # Thin wrapper around the MuJoCo model/data for joint & pose access
   config.yaml               # Model path, joint limits, velocity limits, result paths
@@ -49,17 +49,17 @@ utils/
   config.py                 # Loads src/config.yaml into a shared `config` dict
 
 scripts/
-  main.py                    # Runs the full pipeline end-to-end, configured via scripts/config/params.yaml
+  main.py                   # Runs the full pipeline end-to-end
   validate_fk.py            # Compares FK output against MuJoCo's ground-truth pose
   validate_ik.py            # Runs IK over random reachable targets, checks convergence
   validate_controller.py    # Runs the controller over targets at increasing distance bands
-  validate_planner.py        # Runs RRT* over randomly sampled blocked start/goal pairs, checks success rate
-  plot_planner_results.py     # Plots planner success rate, convergence, path cost, and tree size vs. distance
+  validate_planner.py       # Runs RRT* over randomly sampled valid start/goal pairs, checks success rate
+  plot_planner_results.py   # Plots planner success rate, convergence, path cost, and tree size vs. distance
   pid_tuning.py             # Sweeps Kp_pos/Kp_rot and plots convergence per target
-  verify_setup.py           # Opens the viewer and steps through home/ready poses
+  verify_setup.py           # Opens the MuJoCo viewer and steps through home/ready poses
   inspect_model.py          # Prints joint/body/site info for the loaded model
   config/
-    params.yaml               # Scene, seed, target mode, planner kwargs, controller gains for scripts/main.py
+    params.yaml             # Params for scripts/main.py
 
 results/                    # CSVs and plots produced by the scripts above
 ```
