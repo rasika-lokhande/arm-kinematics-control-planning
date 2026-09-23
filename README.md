@@ -1,11 +1,11 @@
-# manipulator-kinematics-control
+# panda-mujoco-motion-stack
 
 **STATUS**
 - Kinematics (FK/IK) - Complete
 - Control - Complete
 - Motion Planning - Complete
 
-Implemented and validated on a Franka Emika Panda (7-DOF) in MuJoCo.
+> Complete kinematics, control and planning stack implemented from scratch on a Franka Emika Panda (7-DOF) in MuJoCo.
 
 **Problem Statement**: [docs/problem_statement.md](docs/problem_statement.md) 
 
