@@ -1,6 +1,6 @@
 
 # Integration script to run the entire planning and control pipeline
-from src.planner_rtt_star import rtt_star, extract_path
+from src.rrt_star import rrt_star, extract_path
 from src.path_smoothing import node_to_q_path, smooth_path
 from src.sim_interface import SimInterface
 from utils.config import config
@@ -28,18 +28,32 @@ def get_valid_target_q(sim, target_pos, target_quat, max_attempts=5):
     return None  # never found a valid, reachable goal
 
 
-def move_to_target(sim:SimInterface, target_pos, target_quat, failure_retries=3, viewer=None, q_start=None):
+def move_to_target(sim: SimInterface, target_pos, target_quat,
+                    Kp_pos=380, Ki_pos=0.0, Kd_pos=0.0,
+                    Kp_rot=300, Ki_rot=0.0, Kd_rot=0.0,
+                    lam=0.01, max_iter=5000,
+                    pos_tol=0.005, rot_tol=0.035,
+                    pos_tol_intermediate=0.03, rot_tol_intermediate=0.15,
+                    settle_window=0.1, settle_window_intermediate=0.0,
+                    failure_retries=3,
+                    planner_kwargs=None,
+                    viewer=None, q_start=None):
 
+    planner_kwargs = planner_kwargs or {}
 
     if q_start is None:
         q_start = np.array(sim.get_current_joint_angles_list())
 
 
     q_goal = get_valid_target_q(sim, target_pos, target_quat)
+    if q_goal is None:
+        raise RuntimeError(f"No valid, reachable joint config found for target pos={target_pos}, quat={target_quat}")
     print(q_goal)
-        
-    path = plan_path(sim, q_start, q_goal, smoothing=True)
-    
+
+    path = plan_path(sim, q_start, q_goal, **planner_kwargs)
+    if path is None:
+        raise RuntimeError(f"No path found from q_start={q_start} to q_goal={q_goal}")
+
     success = False
 
     for _ in range(failure_retries):
@@ -54,20 +68,22 @@ def move_to_target(sim:SimInterface, target_pos, target_quat, failure_retries=3,
 
             controller_result = controller(
                 sim, wp_pos, wp_quat,
-                Kp_pos=380, Kp_rot=300,
-                pos_tol=0.005 if is_last else 0.03,   # loose for intermediate, tight for final
-                rot_tol=0.035 if is_last else 0.15,
-                settle_window=0.1 if is_last else 0.0,  # don't require settling mid-path
+                Kp_pos=Kp_pos, Ki_pos=Ki_pos, Kd_pos=Kd_pos,
+                Kp_rot=Kp_rot, Ki_rot=Ki_rot, Kd_rot=Kd_rot,
+                lam=lam, max_iter=max_iter,
+                pos_tol=pos_tol if is_last else pos_tol_intermediate,   # loose for intermediate, tight for final
+                rot_tol=rot_tol if is_last else rot_tol_intermediate,
+                settle_window=settle_window if is_last else settle_window_intermediate,  # don't require settling mid-path
                 viewer=viewer
             )
-
-            #controller_result = controller(sim, wp_pos, wp_quat, Kp_pos = 380, Kp_rot=300, viewer=viewer)
 
             if not controller_result['is_converged']:
                 print(f"Warning: did not converge for waypoint {waypoint}")
                 print(f"Finding new path...")
                 q_current = np.array(sim.get_current_joint_angles_list())
-                path = plan_path(sim, q_current, q_goal, smoothing=True)
+                path = plan_path(sim, q_current, q_goal, **planner_kwargs)
+                if path is None:
+                    raise RuntimeError(f"No path found from q_current={q_current} to q_goal={q_goal}")
                 break
             else:
                 print(f"Reached waypoint {waypoint}")
@@ -80,32 +96,7 @@ def move_to_target(sim:SimInterface, target_pos, target_quat, failure_retries=3,
 
         
         
-       
    
-
-if __name__ == '__main__':
-
-    np.random.seed(10)
-
-    from scripts.validate_planner import generate_blocked_pair
-    sim = SimInterface(config['SCENE_NARROW_PATH'])
-    
-    # Test target 
-    q_start, q_goal = generate_blocked_pair(sim)
-    sim.set_joint_angles(q_start)
-    T_target, _ = forward_kinematics(sim, q_goal)
-    target_R, target_pos = homog_to_R_p(T_target)
-    target_quat = R_to_quat(target_R)
-
-
-    with mujoco.viewer.launch_passive(sim.model, sim.data) as viewer:
-        move_to_target(sim, target_pos, target_quat, viewer=viewer, q_start = q_start)
-
-    
-        while viewer.is_running():
-            viewer.sync()
-            time.sleep(0.01)
-
 
 
 

@@ -1,4 +1,4 @@
-from src.planner_rtt_star import Node
+from src.rrt_star import Node
 import numpy as np
 import random
 from src.q_validity_check import check_edge_validity

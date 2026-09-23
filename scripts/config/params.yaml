@@ -1,0 +1,42 @@
+scene: SCENE_EASY_PATH   # key into src/config.yaml
+seed: 10
+viewer: true
+
+target:
+  mode: blocked_pair       # "blocked_pair" | "fixed"
+  pos: null                # used only when mode == fixed
+  quat: null
+
+# target:
+#   mode: fixed
+#   pos: [0.03112691, -0.2918927, 0.45697028]
+#   quat: [0.72794075, 0.43195954, -0.34163211, -0.40841243]   # w, x, y, z — verified reachable & collision-free in SCENE_EASY_PATH
+
+
+planner:
+  max_retries: 5
+  smoothing: true
+  rrt_kwargs:
+    max_iter: 1000
+    step_size: 0.15
+    radius: 0.225
+    goal_tol: 0.1
+
+controller:
+  Kp_pos: 380
+  Ki_pos: 0.0
+  Kd_pos: 0.0
+  Kp_rot: 300
+  Ki_rot: 0.0
+  Kd_rot: 0.0
+  lam: 0.01
+  pos_tol: 0.005
+  rot_tol: 0.035
+  pos_tol_intermediate: 0.03
+  rot_tol_intermediate: 0.15
+  settle_window: 0.1       # final waypoint
+  settle_window_intermediate: 0.0
+  max_iter: 5000
+
+execution:
+  failure_retries: 3

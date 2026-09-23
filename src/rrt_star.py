@@ -28,8 +28,6 @@ Step 10: Check g(node = nearby_node|parent = q_new)  for each nearby_nodes (exce
         change parent to q_new for the nearby_node.
 Step 11: Repeat till |q_new - q_gol| < goal_tol or till max_iter is reached.
 
-
-
 """
 
 @dataclass
@@ -125,7 +123,7 @@ def extract_path(end_node:Node):
     return path, path_cost
 
 
-def rtt_star(sim:SimInterface, q_start:np.ndarray, q_goal:np.ndarray,
+def rrt_star(sim:SimInterface, q_start:np.ndarray, q_goal:np.ndarray,
              max_iter:int=1000, step_size:float=0.15, radius:float=0.225, goal_tol:float=0.1):
 
 
@@ -233,7 +231,7 @@ if __name__ == '__main__':
     print("direct edge valid:", check_edge_validity(sim, q_start, q_goal))
 
     
-    result = rtt_star(sim, q_start, q_goal, max_iter, step_size, radius, goal_tol)
+    result = rrt_star(sim, q_start, q_goal, max_iter, step_size, radius, goal_tol)
 
 
     print(result['success'])

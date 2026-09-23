@@ -1,4 +1,4 @@
-from src.planner_rtt_star import rtt_star, extract_path
+from src.rrt_star import rrt_star, extract_path
 from src.path_smoothing import node_to_q_path, smooth_path, path_smoothness_metric
 from src.sim_interface import SimInterface
 from utils.config import config
@@ -15,19 +15,20 @@ from src.transforms import homog_to_R_p, R_to_quat
 
 
 
-def plan_path(sim, q_start, q_goal, max_retries=5, smoothing:bool = True):
+def plan_path(sim, q_start, q_goal, max_retries=5, smoothing: bool = True, rrt_kwargs=None):
 
+    rrt_kwargs = rrt_kwargs or {}
 
     for _ in range(max_retries):
-        rtt_star_result = rtt_star(sim, q_start, q_goal)
-        if rtt_star_result['success']:
+        rrt_star_result = rrt_star(sim, q_start, q_goal, **rrt_kwargs)
+        if rrt_star_result['success']:
             break
         print("Trying again...")
     else:
         print("Path not found")
         return None
 
-    node_path, _ = extract_path(rtt_star_result['end_node'])
+    node_path, _ = extract_path(rrt_star_result['end_node'])
 
     q_path = node_to_q_path(node_path)
     print(path_smoothness_metric(q_path))

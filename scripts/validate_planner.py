@@ -1,5 +1,5 @@
 from scripts.pid_tuning import generate_target
-from src.planner_rtt_star import rtt_star, extract_path, get_c_space_bounds, sample_random_q
+from src.rrt_star import rrt_star, extract_path, get_c_space_bounds, sample_random_q
 from src.q_validity_check import is_valid, check_edge_validity
 from src.sim_interface import SimInterface
 from utils.config import config
@@ -40,7 +40,7 @@ def validate(sim:SimInterface, ntrials,
 
         q_start, q_goal = generate_blocked_pair(sim)
         sim.set_joint_angles(q_start)
-        result = rtt_star(sim, q_start, q_goal, max_iter, step_size, radius, goal_tol)
+        result = rrt_star(sim, q_start, q_goal, max_iter, step_size, radius, goal_tol)
 
         if result['success']:
             path, path_cost = extract_path(result['end_node'])

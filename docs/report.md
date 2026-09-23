@@ -82,10 +82,28 @@ For those 84:
 **This is the reason a motion planner is needed rather than pushing the controller harder.**
 
 
-## 5. Known gaps
+## 5. Motion Planning
 
-- Every test in the controller starts from home pose. This tells us how the controller does from home, not for arbitrary start-to-target moves, which will matter once it's fed non-home starting points.
-- PID gains were tuned on single, large point-to-target jumps; a longer, planner-supplied path (many closer-spaced waypoints) hasn't been tested and may need separate tuning.
-- Failures aren't sorted by specific cause (unreachable vs. singularity vs. ran out of time). The singularity/direction hypothesis above is reasoned from indirect evidence, not confirmed per-failure.
-- Gains haven't been validated on non-home start points or multi-waypoint paths yet.
+RRT* plans a path through the 7-DOF joint-space configuration, not task space, so a waypoint is always joint-limit-respecting and collision-free by construction rather than something the controller has to be trusted to find on its own.
+
+Each candidate edge is validated by lerping between the two configs and checking every intermediate point for joint limits and collisions. New nodes attach to the lowest-cost valid nearby parent, and existing nearby nodes get rewired through the new node whenever that lowers their cost. Once a path reaches the goal, a smoothing pass repeatedly tries random shortcuts between non-adjacent waypoints and keeps any whose direct edge is valid, cutting the zig-zag raw RRT* tends to leave behind. The orchestrator ties it to the rest of the pipeline: solve IK for the goal pose, plan a path to it, then drive the controller through each waypoint, tightening tolerances only for the final one, and replanning from wherever the arm currently is if the controller fails to converge on a waypoint, instead of aborting the move.
+
+### Three issues found during integration
+
+1. **IK wasn't clamping joint limits.** The Jacobian update stepped `theta` but never clamped it back into `jnt_range`. This never showed up in isolated IK validation (an out-of-range result there just reads as "not converged"), but it broke planning: IK could hand the planner a `q_goal` outside the joint limits, which every edge check would then reject outright. Fixed by clamping after every IK update, and seeding both IK entry points from `theta_home` instead of all-zeros.
+2. **Uniform sampling barely finds the goal.** Sampling `q_rand` uniformly over 7 joints rarely lands anywhere near the goal, so the tree grew almost randomly. Added a goal bias so the goal itself is sampled directly 20% of the time, which sharply cut iterations-to-converge.
+3. **Waypoints were causing stop-and-go motion.** The controller's default tolerances are tuned tight, for a single final target — reusing them at every intermediate waypoint made the arm fully settle before each step. Fixed by giving intermediate waypoints their own, looser tolerances with no settle window.
+
+**Result** (100 randomly sampled "blocked pairs" — both configs valid, direct edge between them invalid):
+- **85% succeeded** within the 1000-iteration budget
+- Median 195 iterations to converge, average 239
+- Failed trials averaged 739 tree nodes, clustered near the 1000-node ceiling — these look like genuinely hard/blocked pairs exhausting the budget, not quick rejections
+- Path cost tracks start-goal distance loosely (raw path cost averages ~1.5x the straight-line joint-space distance) — the expected detour cost of routing around blocked edges
+
+## 6. Known gaps
+
+- Every controller test in Section 4 starts from home pose; multi-waypoint, non-home execution is now exercised through `orchestrator.move_to_target()` / `scripts.main`, but isn't swept and validated the same systematic way the single-target case is.
+- Intermediate waypoint tolerances (`pos_tol_intermediate`/`rot_tol_intermediate`) were loosened ad hoc to stop waypoint-to-waypoint stalling, not re-derived from a sweep the way the final-target Kp gains were.
+- Controller and planner failures both aren't sorted by specific cause (unreachable vs. singularity vs. ran out of time vs. max_iter exhausted vs. unlucky sampling). The singularity/direction hypothesis in Section 4 is reasoned from indirect evidence, not confirmed per-failure.
+- No quantitative before/after comparison of `path_smoothing` exists yet — `path_smoothness_metric` is computed and printed during planning but not logged/aggregated across trials.
 
